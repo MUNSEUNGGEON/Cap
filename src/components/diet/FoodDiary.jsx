@@ -30,7 +30,7 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [meals, setMeals] = useState({});
-  const [nutrition, setSelectedMeal] = useState(null);
+  const [selectedMeal, setSelectedMeal] = useState(null);
   const [menuRatings, setMenuRatings] = useState({});
   const [comment, setComment] = useState('');
   const [diaryEntries, setDiaryEntries] = useState({});
