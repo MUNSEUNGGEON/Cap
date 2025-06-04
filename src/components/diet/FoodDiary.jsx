@@ -278,11 +278,18 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
     if (!selectedMeal) return null;
 
     const actualNutrition = {
-      칼로리: selectedMeal.total_calories || 0,
-      탄수화물: selectedMeal.total_carbohydrate || 0,
-      단백질: selectedMeal.total_protein || 0,
-      지방: selectedMeal.total_fat || 0,
-      나트륨: selectedMeal.total_sodium || 0
+      칼로리:
+        (nutrition && nutrition.total_calories) || selectedMeal.total_calories ||
+        0,
+      탄수화물:
+        (nutrition && nutrition.total_carbohydrate) ||
+        selectedMeal.total_carbohydrate ||
+        0,
+      단백질:
+        (nutrition && nutrition.total_protein) || selectedMeal.total_protein || 0,
+      지방: (nutrition && nutrition.total_fat) || selectedMeal.total_fat || 0,
+      나트륨:
+        (nutrition && nutrition.total_sodium) || selectedMeal.total_sodium || 0,
     };
 
     // 권장 영양소 (예시값 - 실제로는 사용자 정보에 따라 계산)
@@ -414,7 +421,16 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
         </div>
         
         <div className="total-nutrition">
-          <p><strong>총 칼로리: {selectedMeal.total_calories ? `${selectedMeal.total_calories}kcal` : '정보 없음'}</strong></p>
+          <p>
+            <strong>
+              총 칼로리:
+              {nutrition && nutrition.total_calories
+                ? `${nutrition.total_calories}kcal`
+                : selectedMeal.total_calories
+                ? `${selectedMeal.total_calories}kcal`
+                : '정보 없음'}
+            </strong>
+          </p>
         </div>
       </div>
     );
