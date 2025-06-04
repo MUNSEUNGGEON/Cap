@@ -131,6 +131,7 @@ npm run dev
 ### 식단 관련
 - `GET /api/meal-plan`: 식단 조회
 - `GET /api/food-detail`: 음식 상세 정보
+- `GET /api/recommended-meal/<age>`: 나이별 권장 영양소 정보
 
 ### 성장 관련
 - `GET /api/height_weight`: 성장 데이터 조회
