@@ -47,7 +47,9 @@ def login():
             'User_id': user['User_id'],
             'name': user['name'],
             'email': user['Email'],
-            'phone_number': user['phone_number']
+            'phone_number': user['phone_number'],
+            # 자녀 생년월일을 프론트엔드에서 사용할 수 있도록 전달
+            'kid_birth': user.get('Kid_birth')
         }
         
         print(f"로그인 성공: {user['id']}, User_id: {user['User_id']}, 토큰 포함됨: {token[:10]}...")
