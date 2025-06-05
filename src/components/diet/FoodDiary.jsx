@@ -27,6 +27,15 @@ ChartJS.register(
   Legend
 );
 
+const calculateAge = (birthStr, referenceDate = new Date()) => {
+  if (!birthStr) return null;
+  const birth = new Date(birthStr);
+  let age = referenceDate.getFullYear() - birth.getFullYear();
+  const m = referenceDate.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && referenceDate.getDate() < birth.getDate())) age--;
+  return age;
+};
+
 const FoodDiary = ({ isLoggedIn, userInfo }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
@@ -63,36 +72,27 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
 
   // 사용자 나이에 맞는 권장 영양소 정보 로드
   useEffect(() => {
-    const getAge = () => {
-      if (userInfo && userInfo.kid_birth) {
-        const birth = new Date(userInfo.kid_birth);
-        const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
-        const m = today.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-        return age;
-      }
-      return null;
-    };
+    if (!userInfo || !userInfo.kid_birth) return;
 
-    const age = getAge();
-    if (age !== null) {
-      recommendedMealService
-        .getRecommendedNutrition(age)
-        .then((res) => {
-          if (res.success && res.data) {
-            setRecommendedNutrition({
-              칼로리: res.data.calories,
-              탄수화물: res.data.carbohydrate,
-              단백질: res.data.protein,
-              지방: res.data.fat,
-              나트륨: res.data.sodium,
-            });
-          }
-        })
-        .catch(() => {});
-    }
-  }, [userInfo]);
+    const reference = selectedDate || new Date();
+    const age = calculateAge(userInfo.kid_birth, reference);
+    if (age === null) return;
+
+    recommendedMealService
+      .getRecommendedNutrition(age)
+      .then((res) => {
+        if (res.success && res.data) {
+          setRecommendedNutrition({
+            칼로리: res.data.calories,
+            탄수화물: res.data.carbohydrate,
+            단백질: res.data.protein,
+            지방: res.data.fat,
+            나트륨: res.data.sodium,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [userInfo, selectedDate]);
 
   // 비교용 나이에 해당하는 권장 영양소 정보 로드
   useEffect(() => {
