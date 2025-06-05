@@ -12,6 +12,7 @@ import {
 } from 'chart.js';
 import { getMonthlyMeals, getMealNutritionByDate } from '../../services/mealService';
 import { saveFoodDiary, getFoodDiary } from '../../services/foodDiaryService';
+import { recommendedMealService } from '../../services/recommendedMealService';
 import MenuBar from '../common/MenuBar';
 import { Link } from 'react-router-dom';
 import './FoodDiary.css';
@@ -36,6 +37,13 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
   const [diaryEntries, setDiaryEntries] = useState({});
   const [nutrition, setNutrition] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [recommendedNutrition, setRecommendedNutrition] = useState({
+    칼로리: 2000,
+    탄수화물: 300,
+    단백질: 150,
+    지방: 65,
+    나트륨: 2000
+  });
 
   // 컴포넌트 마운트 시 데이터 로드 - 단순화
   useEffect(() => {
@@ -50,6 +58,39 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
       setDiaryEntries({});
     }
   }, [currentDate, isLoggedIn, userInfo]);
+
+  // 사용자 나이에 맞는 권장 영양소 정보 로드
+  useEffect(() => {
+    const getAge = () => {
+      if (userInfo && userInfo.kid_birth) {
+        const birth = new Date(userInfo.kid_birth);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        return age;
+      }
+      return null;
+    };
+
+    const age = getAge();
+    if (age) {
+      recommendedMealService
+        .getRecommendedNutrition(age)
+        .then((res) => {
+          if (res.success && res.data) {
+            setRecommendedNutrition({
+              칼로리: res.data.calories,
+              탄수화물: res.data.carbohydrate,
+              단백질: res.data.protein,
+              지방: res.data.fat,
+              나트륨: res.data.sodium,
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [userInfo]);
 
   // 식단 정보 로드
   const loadMeals = async () => {
@@ -292,18 +333,10 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
         (nutrition && nutrition.total_sodium) || selectedMeal.total_sodium || 0,
     };
 
-    // 권장 영양소 (예시값 - 실제로는 사용자 정보에 따라 계산)
-    const recommendedNutrition = {
-      칼로리: 2000,
-      탄수화물: 300,
-      단백질: 150,
-      지방: 65,
-      나트륨: 2000
-    };
+    const recommended = recommendedNutrition;
 
-    // 백분율로 변환
-    const actualPercentage = Object.keys(actualNutrition).map(key => 
-      Math.min((actualNutrition[key] / recommendedNutrition[key]) * 100, 100)
+    const actualPercentage = Object.keys(actualNutrition).map(key =>
+      Math.min((actualNutrition[key] / recommended[key]) * 100, 100)
     );
 
     return {

@@ -9,6 +9,7 @@ from routes.products import products_bp
 from routes.recipes import recipes_bp
 from routes.food_nutrition import food_nutrition_bp
 from routes.meal_nutrition import meal_nutrition_bp
+from routes.recommended_meal import recommended_meal_bp
 from config import test_db_connection
 
 app = Flask(__name__)
@@ -24,6 +25,7 @@ app.register_blueprint(products_bp)
 app.register_blueprint(recipes_bp)
 app.register_blueprint(food_nutrition_bp)
 app.register_blueprint(meal_nutrition_bp)
+app.register_blueprint(recommended_meal_bp)
 
 if __name__ == '__main__':
     print("서버 시작 중...")
