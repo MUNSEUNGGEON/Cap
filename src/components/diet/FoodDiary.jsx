@@ -44,6 +44,8 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
     지방: 65,
     나트륨: 2000
   });
+  const [secondAge, setSecondAge] = useState('');
+  const [recommendedNutrition2, setRecommendedNutrition2] = useState(null);
 
   // 컴포넌트 마운트 시 데이터 로드 - 단순화
   useEffect(() => {
@@ -91,6 +93,31 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
         .catch(() => {});
     }
   }, [userInfo]);
+
+  // 비교용 나이에 해당하는 권장 영양소 정보 로드
+  useEffect(() => {
+    if (!secondAge) {
+      setRecommendedNutrition2(null);
+      return;
+    }
+
+    recommendedMealService
+      .getRecommendedNutrition(secondAge)
+      .then((res) => {
+        if (res.success && res.data) {
+          setRecommendedNutrition2({
+            칼로리: res.data.calories,
+            탄수화물: res.data.carbohydrate,
+            단백질: res.data.protein,
+            지방: res.data.fat,
+            나트륨: res.data.sodium,
+          });
+        } else {
+          setRecommendedNutrition2(null);
+        }
+      })
+      .catch(() => setRecommendedNutrition2(null));
+  }, [secondAge]);
 
   // 식단 정보 로드
   const loadMeals = async () => {
@@ -333,30 +360,41 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
         (nutrition && nutrition.total_sodium) || selectedMeal.total_sodium || 0,
     };
 
-    const recommended = recommendedNutrition;
+    const labels = Object.keys(actualNutrition);
 
-    const actualPercentage = Object.keys(actualNutrition).map(key =>
-      Math.min((actualNutrition[key] / recommended[key]) * 100, 100)
-    );
+    const datasets = [];
+
+    if (recommendedNutrition2) {
+      datasets.push({
+        label: '권장2',
+        data: labels.map(key => recommendedNutrition2[key]),
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+        borderColor: 'rgba(153, 102, 255, 1)',
+        borderWidth: 2,
+      });
+    }
+
+    if (recommendedNutrition) {
+      datasets.push({
+        label: '권장',
+        data: labels.map(key => recommendedNutrition[key]),
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2,
+      });
+    }
+
+    datasets.push({
+      label: '실제',
+      data: labels.map(key => actualNutrition[key]),
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 2,
+    });
 
     return {
-      labels: Object.keys(actualNutrition),
-      datasets: [
-        {
-          label: '권장',
-          data: [100, 100, 100, 100, 100],
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 2,
-        },
-        {
-          label: '실제',
-          data: actualPercentage,
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 2,
-        },
-      ],
+      labels,
+      datasets,
     };
   };
 
@@ -623,8 +661,19 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
           <div className="right-panel">
             <div className="nutrition-chart">
               <h3>영양소 비교</h3>
+              <div className="compare-age">
+                <label>
+                  비교 나이:
+                  <input
+                    type="number"
+                    value={secondAge}
+                    onChange={(e) => setSecondAge(e.target.value)}
+                    placeholder="나이를 입력"
+                  />
+                </label>
+              </div>
               {getNutritionData() && (
-                <Radar 
+                <Radar
                   data={getNutritionData()}
                   options={{
                     responsive: true,
@@ -636,9 +685,9 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
                     scales: {
                       r: {
                         beginAtZero: true,
-                        max: 100,
+                        max: 2000,
                         ticks: {
-                          stepSize: 20
+                          stepSize: 200
                         }
                       }
                     }

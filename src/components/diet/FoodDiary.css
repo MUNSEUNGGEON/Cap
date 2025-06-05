@@ -404,6 +404,15 @@
   max-height: 400px;
 }
 
+.compare-age {
+  margin-bottom: 10px;
+}
+
+.compare-age input {
+  margin-left: 5px;
+  width: 60px;
+}
+
 .no-selection {
   text-align: center;
   padding: 50px 20px;
