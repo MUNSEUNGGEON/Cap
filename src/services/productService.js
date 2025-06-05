@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5000';
+import { API_BASE_URL } from './apiConfig';
 
 // axios 인스턴스 생성 (baseURL과 timeout 설정)
 const apiClient = axios.create({

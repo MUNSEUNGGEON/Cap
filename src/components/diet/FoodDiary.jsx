@@ -76,7 +76,7 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
     };
 
     const age = getAge();
-    if (age) {
+    if (age !== null) {
       recommendedMealService
         .getRecommendedNutrition(age)
         .then((res) => {
@@ -258,12 +258,6 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
     setSelectedMeal(null);
     setMenuRatings({});
     setComment('');
-    
-    // 추가 보장: 다음 렌더링 사이클에서도 확인
-    setTimeout(() => {
-      // 여전히 true라면 강제로 false로 설정
-      setSelectedMeal(null);
-    }, 10);
   };
 
   // 이전 달로 이동
@@ -593,17 +587,6 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
         </table>
       </div>
     );
-  };
-
-  // 예시: FoodDiary.jsx 내에서
-  const getTotalNutrition = (foods) => {
-    return foods.reduce((acc, food) => ({
-      calories: acc.calories + (food.calories || 0),
-      carbohydrate: acc.carbohydrate + (food.carbohydrate || 0),
-      protein: acc.protein + (food.protein || 0),
-      fat: acc.fat + (food.fat || 0),
-      sodium: acc.sodium + (food.sodium || 0),
-    }), { calories: 0, carbohydrate: 0, protein: 0, fat: 0, sodium: 0 });
   };
 
   return (

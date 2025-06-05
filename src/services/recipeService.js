@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:5000';
+import { API_BASE_URL } from './apiConfig';
 
 export const recipeService = {
   // 레시피 목록 조회 (옵션: userId, checkedAllergies)
