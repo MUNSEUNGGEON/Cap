@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+import { API_URL } from './apiConfig';
 
 // 식단일지 저장
 export const saveFoodDiary = async (diaryData, userInfoParam = null) => {
@@ -28,7 +28,7 @@ export const saveFoodDiary = async (diaryData, userInfoParam = null) => {
       ...diaryData
     };
 
-    const response = await fetch(`${API_BASE_URL}/food-diary`, {
+    const response = await fetch(`${API_URL}/food-diary`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export const getFoodDiary = async (year, month, userInfoParam = null) => {
       throw new Error('로그인이 필요합니다. 사용자 정보를 찾을 수 없습니다.');
     }
 
-    const response = await fetch(`${API_BASE_URL}/food-diary/${userId}?year=${year}&month=${month}`, {
+    const response = await fetch(`${API_URL}/food-diary/${userId}?year=${year}&month=${month}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ export const getFoodDiaryByDate = async (date) => {
       throw new Error('로그인이 필요합니다.');
     }
 
-    const response = await fetch(`${API_BASE_URL}/food-diary/${userInfo.user_id}/${date}`, {
+    const response = await fetch(`${API_URL}/food-diary/${userInfo.user_id}/${date}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export const updateFoodDiary = async (diaryId, diaryData) => {
       throw new Error('로그인이 필요합니다.');
     }
 
-    const response = await fetch(`${API_BASE_URL}/food-diary/${diaryId}`, {
+    const response = await fetch(`${API_URL}/food-diary/${diaryId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -156,7 +156,7 @@ export const deleteFoodDiary = async (diaryId) => {
       throw new Error('로그인이 필요합니다.');
     }
 
-    const response = await fetch(`${API_BASE_URL}/food-diary/${diaryId}`, {
+    const response = await fetch(`${API_URL}/food-diary/${diaryId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

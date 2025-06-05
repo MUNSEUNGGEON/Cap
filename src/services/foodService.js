@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'http://127.0.0.1:5000/api';
+import { API_URL } from './apiConfig';
 
 // JWT 토큰을 헤더에 포함시키는 함수
 const getAuthHeader = () => {
@@ -16,8 +15,6 @@ const getAuthHeader = () => {
       console.error('userInfo에 token이 없습니다:', userInfo);
       return { headers: { 'Authorization': 'Bearer ' } };
     }
-    
-    console.log("인증 토큰:", userInfo.token.substring(0, 10) + "...");
     
     return {
       headers: {
@@ -63,7 +60,7 @@ export const getFoodNutrition = async (foodId) => {
   try {
     const authHeader = getAuthHeader();
     const response = await axios.get(
-      `http://127.0.0.1:5000/api/food-nutrition/${foodId}`,
+      `${API_URL}/food-nutrition/${foodId}`,
       authHeader
     );
     return response.data;
