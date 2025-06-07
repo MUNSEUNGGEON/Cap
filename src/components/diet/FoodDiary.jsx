@@ -27,6 +27,15 @@ ChartJS.register(
   Legend
 );
 
+const calculateAge = (birthStr, referenceDate = new Date()) => {
+  if (!birthStr) return null;
+  const birth = new Date(birthStr);
+  let age = referenceDate.getFullYear() - birth.getFullYear();
+  const m = referenceDate.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && referenceDate.getDate() < birth.getDate())) age--;
+  return age;
+};
+
 const FoodDiary = ({ isLoggedIn, userInfo }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
@@ -63,36 +72,27 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
 
   // 사용자 나이에 맞는 권장 영양소 정보 로드
   useEffect(() => {
-    const getAge = () => {
-      if (userInfo && userInfo.kid_birth) {
-        const birth = new Date(userInfo.kid_birth);
-        const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
-        const m = today.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-        return age;
-      }
-      return null;
-    };
+    if (!userInfo || !userInfo.kid_birth) return;
 
-    const age = getAge();
-    if (age !== null) {
-      recommendedMealService
-        .getRecommendedNutrition(age)
-        .then((res) => {
-          if (res.success && res.data) {
-            setRecommendedNutrition({
-              칼로리: res.data.calories,
-              탄수화물: res.data.carbohydrate,
-              단백질: res.data.protein,
-              지방: res.data.fat,
-              나트륨: res.data.sodium,
-            });
-          }
-        })
-        .catch(() => {});
-    }
-  }, [userInfo]);
+    const reference = selectedDate || new Date();
+    const age = calculateAge(userInfo.kid_birth, reference);
+    if (age === null) return;
+
+    recommendedMealService
+      .getRecommendedNutrition(age)
+      .then((res) => {
+        if (res.success && res.data) {
+          setRecommendedNutrition({
+            칼로리: res.data.calories,
+            탄수화물: res.data.carbohydrate,
+            단백질: res.data.protein,
+            지방: res.data.fat,
+            나트륨: res.data.sodium,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [userInfo, selectedDate]);
 
   // 비교용 나이에 해당하는 권장 영양소 정보 로드
   useEffect(() => {
@@ -335,7 +335,7 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
     }
   };
 
-  // 영양소 데이터 준비
+  // 영양소 데이터 준비 및 최대값 계산
   const getNutritionData = () => {
     if (!selectedMeal) return null;
 
@@ -361,7 +361,7 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
     if (recommendedNutrition2) {
       datasets.push({
         label: '권장2',
-        data: labels.map(key => recommendedNutrition2[key]),
+        data: labels.map((key) => recommendedNutrition2[key]),
         backgroundColor: 'rgba(153, 102, 255, 0.2)',
         borderColor: 'rgba(153, 102, 255, 1)',
         borderWidth: 2,
@@ -371,7 +371,7 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
     if (recommendedNutrition) {
       datasets.push({
         label: '권장',
-        data: labels.map(key => recommendedNutrition[key]),
+        data: labels.map((key) => recommendedNutrition[key]),
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 2,
@@ -380,15 +380,29 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
 
     datasets.push({
       label: '실제',
-      data: labels.map(key => actualNutrition[key]),
+      data: labels.map((key) => actualNutrition[key]),
       backgroundColor: 'rgba(255, 99, 132, 0.2)',
       borderColor: 'rgba(255, 99, 132, 1)',
       borderWidth: 2,
     });
+    const allValues = [
+      ...labels.map((l) => actualNutrition[l]),
+    ];
+    if (recommendedNutrition) {
+      allValues.push(...labels.map((l) => recommendedNutrition[l]));
+    }
+    if (recommendedNutrition2) {
+      allValues.push(...labels.map((l) => recommendedNutrition2[l]));
+    }
+
+    const maxValue = Math.max(...allValues);
 
     return {
-      labels,
-      datasets,
+      chartData: {
+        labels,
+        datasets,
+      },
+      maxValue,
     };
   };
 
@@ -655,9 +669,14 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
                   />
                 </label>
               </div>
-              {getNutritionData() && (
+              {(() => {
+                const info = getNutritionData();
+                if (!info) return null;
+                const niceMax = Math.ceil((info.maxValue * 1.1) / 100) * 100;
+                const step = niceMax / 5;
+                return (
                 <Radar
-                  data={getNutritionData()}
+                  data={info.chartData}
                   options={{
                     responsive: true,
                     plugins: {
@@ -668,15 +687,16 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
                     scales: {
                       r: {
                         beginAtZero: true,
-                        max: 2000,
+                        max: niceMax,
                         ticks: {
-                          stepSize: 200
-                        }
+                          stepSize: step,
+                        },
                       }
                     }
                   }}
                 />
-              )}
+                );
+              })()}
             </div>
           </div>
         </div>
