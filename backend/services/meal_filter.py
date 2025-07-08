@@ -29,8 +29,12 @@ def filter_foods_by_allergy(user_id):
 
         allergy_filter_sql = generate_recipe_allergy_filter_sql(allergy_ids, table_alias='f')
 
-        sql = f"SELECT * FROM Food AS f WHERE {allergy_filter_sql}"
-        cursor.execute(sql)
+        if not allergy_filter_sql:
+            print("🔵 인식된 알러지 조건이 없어 전체 음식 반환")
+            cursor.execute("SELECT * FROM Food")
+        else:
+            sql = f"SELECT * FROM Food AS f WHERE {allergy_filter_sql}"
+            cursor.execute(sql)
         foods = cursor.fetchall()
         print(f"🟢 알러지 제외 후 남은 음식 개수: {len(foods)}")
         print("="*50 + "\n")
