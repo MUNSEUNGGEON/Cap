@@ -354,14 +354,24 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
         (nutrition && nutrition.total_sodium) || selectedMeal.total_sodium || 0,
     };
 
+    const percent = (value, base) => (base ? (value / base) * 100 : 0);
     const labels = Object.keys(actualNutrition);
+
+    const actualPercent = labels.map((k) =>
+      percent(actualNutrition[k], recommendedNutrition[k])
+    );
+    const rec2Percent = recommendedNutrition2
+      ? labels.map((k) =>
+          percent(recommendedNutrition2[k], recommendedNutrition[k])
+        )
+      : null;
 
     const datasets = [];
 
     if (recommendedNutrition2) {
       datasets.push({
         label: '권장2',
-        data: labels.map(key => recommendedNutrition2[key]),
+        data: rec2Percent,
         backgroundColor: 'rgba(153, 102, 255, 0.2)',
         borderColor: 'rgba(153, 102, 255, 1)',
         borderWidth: 2,
@@ -371,7 +381,7 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
     if (recommendedNutrition) {
       datasets.push({
         label: '권장',
-        data: labels.map(key => recommendedNutrition[key]),
+        data: labels.map(() => 100),
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 2,
@@ -380,7 +390,7 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
 
     datasets.push({
       label: '실제',
-      data: labels.map(key => actualNutrition[key]),
+      data: actualPercent,
       backgroundColor: 'rgba(255, 99, 132, 0.2)',
       borderColor: 'rgba(255, 99, 132, 1)',
       borderWidth: 2,
@@ -664,13 +674,19 @@ const FoodDiary = ({ isLoggedIn, userInfo }) => {
                       legend: {
                         position: 'top',
                       },
+                      tooltip: {
+                        callbacks: {
+                          label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.r}%`,
+                        },
+                      },
                     },
                     scales: {
                       r: {
                         beginAtZero: true,
-                        max: 2000,
+                        max: 150,
                         ticks: {
-                          stepSize: 200
+                          stepSize: 10,
+                          callback: (value) => `${value}%`,
                         }
                       }
                     }
