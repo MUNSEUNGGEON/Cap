@@ -184,14 +184,7 @@ def get_monthly_meals(current_user):
         user_id = current_user['User_id']
         year = int(request.args.get('year'))
         month = int(request.args.get('month'))
-        num_days = calendar.monthrange(year, month)[1]
-        meals = {}
-        for day in range(1, num_days + 1):
-            date_str = f"{year}-{month:02d}-{day:02d}"
-            date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-            meal = Meal.get_by_user_and_date(user_id, date)
-            if meal:
-                meals[date_str] = meal
+        meals = Meal.get_monthly_meals(user_id, year, month)
         return jsonify({'success': True, 'meals': meals})
     except Exception as e:
         print(f"❌ 월별 식단 조회 오류: {e}")
