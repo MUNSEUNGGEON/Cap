@@ -54,6 +54,7 @@ def register():
         # 회원가입 성공 시 user 정보와 JWT 토큰도 반환
         user_info = {
             'username': data['id'],
+            'User_id': user_id,
             'name': data['name'],
             'email': data['email']
         }
