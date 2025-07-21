@@ -153,6 +153,7 @@ const Register = ({ setIsLoggedIn, setUserInfo }) => {
         // 사용자 정보와 토큰 저장
         const userInfo = {
           id: response.data.user.username,
+          User_id: response.data.user.User_id,
           name: response.data.user.name,
           email: response.data.user.email,
           token: response.data.token
