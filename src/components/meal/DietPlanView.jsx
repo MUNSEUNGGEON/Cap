@@ -69,6 +69,17 @@ const DietPlanView = ({
                       onClick={() => handleDateClick(day)}
                     >
                       <div className="calendar-date">{formatDate(day)}</div>
+                      {isExpanded && (
+                        <button
+                          className="refresh-button"
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleRegenerateMeal(day);
+                          }}
+                        >
+                          ↻
+                        </button>
+                      )}
                       {hasMealData(day) && isCurrentMonth(day) && (
                         <div className={`diet-summary ${isExpanded ? 'expanded-summary' : ''}`}>
                           {meals[formatDateString(day)]?.rice_name && (

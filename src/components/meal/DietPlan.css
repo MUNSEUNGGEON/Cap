@@ -197,6 +197,22 @@
   margin-bottom: 2px;
 }
 
+.refresh-button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #4285f4;
+  padding: 2px;
+}
+
+.refresh-button:hover {
+  color: #3367d6;
+}
+
 .has-diet-indicator {
   width: 6px;
   height: 6px;
