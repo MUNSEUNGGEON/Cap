@@ -7,7 +7,7 @@ const DietPlanView = ({
   currentDate, viewType, handleViewTypeChange, generating, error,
   weekdays, days, prevMonth, nextMonth, formatMonth, expandedDate, isSameDate, isCurrentMonth, isWeekend,
   handleDateClick, hasMealData, meals, formatDateString, selectedMenuItem, handleMenuItemClick, handleFoodClick,
-  formatDate, selectedDate, formatSelectedDate, loading, selectedMeal, handleRegenerateMeal, showFoodDetail, selectedFoodId, handleCloseFoodDetail,
+  formatDate, selectedDate, formatSelectedDate, loading, selectedMeal, handleRegenerateMeal, handleRegenerateMealItem, showFoodDetail, selectedFoodId, handleCloseFoodDetail,
   showGenerateOptions, handleShowGenerateOptions, handleGenerateByType
 }) => (
   <div className="diet-plan-container">
@@ -83,39 +83,111 @@ const DietPlanView = ({
                       {hasMealData(day) && isCurrentMonth(day) && (
                         <div className={`diet-summary ${isExpanded ? 'expanded-summary' : ''}`}>
                           {meals[formatDateString(day)]?.rice_name && (
-                            <div className={`diet-item rice ${isExpanded && selectedMenuItem === 'rice' ? 'selected-menu-item' : ''}`}
-                              onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'rice'); handleFoodClick(meals[formatDateString(day)].Rice_id); } }}>
-                              {meals[formatDateString(day)].rice_name}
+                            <div className={`diet-item rice ${isExpanded && selectedMenuItem === 'rice' ? 'selected-menu-item' : ''}`}>
+                              <span
+                                className="diet-item-name"
+                                onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'rice'); handleFoodClick(meals[formatDateString(day)].Rice_id); } }}
+                              >
+                                {meals[formatDateString(day)].rice_name}
+                              </span>
+                              {isExpanded && (
+                                <button
+                                  className="item-refresh-button"
+                                  onClick={e => { e.stopPropagation(); handleRegenerateMealItem(day, 'rice'); }}
+                                >
+                                  ↻
+                                </button>
+                              )}
                             </div>
                           )}
                           {meals[formatDateString(day)]?.soup_name && (
-                            <div className={`diet-item soup ${isExpanded && selectedMenuItem === 'soup' ? 'selected-menu-item' : ''}`}
-                              onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'soup'); handleFoodClick(meals[formatDateString(day)].Soup_id); } }}>
-                              {meals[formatDateString(day)].soup_name}
+                            <div className={`diet-item soup ${isExpanded && selectedMenuItem === 'soup' ? 'selected-menu-item' : ''}`}>
+                              <span
+                                className="diet-item-name"
+                                onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'soup'); handleFoodClick(meals[formatDateString(day)].Soup_id); } }}
+                              >
+                                {meals[formatDateString(day)].soup_name}
+                              </span>
+                              {isExpanded && (
+                                <button
+                                  className="item-refresh-button"
+                                  onClick={e => { e.stopPropagation(); handleRegenerateMealItem(day, 'soup'); }}
+                                >
+                                  ↻
+                                </button>
+                              )}
                             </div>
                           )}
                           {meals[formatDateString(day)]?.main_dish_name && (
-                            <div className={`diet-item main-dish ${isExpanded && selectedMenuItem === 'main_dish' ? 'selected-menu-item' : ''}`}
-                              onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'main_dish'); handleFoodClick(meals[formatDateString(day)].MainDish_id); } }}>
-                              {meals[formatDateString(day)].main_dish_name}
+                            <div className={`diet-item main-dish ${isExpanded && selectedMenuItem === 'main_dish' ? 'selected-menu-item' : ''}`}>
+                              <span
+                                className="diet-item-name"
+                                onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'main_dish'); handleFoodClick(meals[formatDateString(day)].MainDish_id); } }}
+                              >
+                                {meals[formatDateString(day)].main_dish_name}
+                              </span>
+                              {isExpanded && (
+                                <button
+                                  className="item-refresh-button"
+                                  onClick={e => { e.stopPropagation(); handleRegenerateMealItem(day, 'main_dish'); }}
+                                >
+                                  ↻
+                                </button>
+                              )}
                             </div>
                           )}
                           {meals[formatDateString(day)]?.side_dish1_name && (
-                            <div className={`diet-item side-dish ${isExpanded && selectedMenuItem === 'side_dish1' ? 'selected-menu-item' : ''}`}
-                              onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'side_dish1'); handleFoodClick(meals[formatDateString(day)].SideDish1_id); } }}>
-                              {meals[formatDateString(day)].side_dish1_name}
+                            <div className={`diet-item side-dish ${isExpanded && selectedMenuItem === 'side_dish1' ? 'selected-menu-item' : ''}`}>
+                              <span
+                                className="diet-item-name"
+                                onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'side_dish1'); handleFoodClick(meals[formatDateString(day)].SideDish1_id); } }}
+                              >
+                                {meals[formatDateString(day)].side_dish1_name}
+                              </span>
+                              {isExpanded && (
+                                <button
+                                  className="item-refresh-button"
+                                  onClick={e => { e.stopPropagation(); handleRegenerateMealItem(day, 'side_dish1'); }}
+                                >
+                                  ↻
+                                </button>
+                              )}
                             </div>
                           )}
                           {meals[formatDateString(day)]?.side_dish2_name && (
-                            <div className={`diet-item side-dish2 ${isExpanded && selectedMenuItem === 'side_dish2' ? 'selected-menu-item' : ''}`}
-                              onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'side_dish2'); handleFoodClick(meals[formatDateString(day)].SideDish2_id); } }}>
-                              {meals[formatDateString(day)].side_dish2_name}
+                            <div className={`diet-item side-dish2 ${isExpanded && selectedMenuItem === 'side_dish2' ? 'selected-menu-item' : ''}`}>
+                              <span
+                                className="diet-item-name"
+                                onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'side_dish2'); handleFoodClick(meals[formatDateString(day)].SideDish2_id); } }}
+                              >
+                                {meals[formatDateString(day)].side_dish2_name}
+                              </span>
+                              {isExpanded && (
+                                <button
+                                  className="item-refresh-button"
+                                  onClick={e => { e.stopPropagation(); handleRegenerateMealItem(day, 'side_dish2'); }}
+                                >
+                                  ↻
+                                </button>
+                              )}
                             </div>
                           )}
                           {meals[formatDateString(day)]?.dessert_name && (
-                            <div className={`diet-item dessert ${isExpanded && selectedMenuItem === 'dessert' ? 'selected-menu-item' : ''}`}
-                              onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'dessert'); handleFoodClick(meals[formatDateString(day)].Dessert_id); } }}>
-                              {meals[formatDateString(day)].dessert_name}
+                            <div className={`diet-item dessert ${isExpanded && selectedMenuItem === 'dessert' ? 'selected-menu-item' : ''}`}>
+                              <span
+                                className="diet-item-name"
+                                onClick={e => { e.stopPropagation(); if (isExpanded) { handleMenuItemClick(e, 'dessert'); handleFoodClick(meals[formatDateString(day)].Dessert_id); } }}
+                              >
+                                {meals[formatDateString(day)].dessert_name}
+                              </span>
+                              {isExpanded && (
+                                <button
+                                  className="item-refresh-button"
+                                  onClick={e => { e.stopPropagation(); handleRegenerateMealItem(day, 'dessert'); }}
+                                >
+                                  ↻
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>
@@ -151,7 +223,10 @@ const DietPlanView = ({
             <div className="meal-block">
               <h3 className="meal-title">밥</h3>
               <ul className="meal-items">
-                <li onClick={() => handleFoodClick(selectedMeal.rice_id)} className="food-item-clickable">{selectedMeal.rice_name}</li>
+                <li className="meal-item">
+                  <span className="meal-item-name food-item-clickable" onClick={() => handleFoodClick(selectedMeal.rice_id)}>{selectedMeal.rice_name}</span>
+                  <button className="item-refresh-button" onClick={() => handleRegenerateMealItem(selectedDate, 'rice')}>↻</button>
+                </li>
               </ul>
             </div>
           )}
@@ -159,7 +234,10 @@ const DietPlanView = ({
             <div className="meal-block">
               <h3 className="meal-title">국/찌개</h3>
               <ul className="meal-items">
-                <li onClick={() => handleFoodClick(selectedMeal.soup_id)} className="food-item-clickable">{selectedMeal.soup_name}</li>
+                <li className="meal-item">
+                  <span className="meal-item-name food-item-clickable" onClick={() => handleFoodClick(selectedMeal.soup_id)}>{selectedMeal.soup_name}</span>
+                  <button className="item-refresh-button" onClick={() => handleRegenerateMealItem(selectedDate, 'soup')}>↻</button>
+                </li>
               </ul>
             </div>
           )}
@@ -168,10 +246,16 @@ const DietPlanView = ({
               <h3 className="meal-title">반찬</h3>
               <ul className="meal-items">
                 {selectedMeal.side_dish1_id && (
-                  <li onClick={() => handleFoodClick(selectedMeal.side_dish1_id)} className="food-item-clickable">{selectedMeal.side_dish1_name}</li>
+                  <li className="meal-item">
+                    <span className="meal-item-name food-item-clickable" onClick={() => handleFoodClick(selectedMeal.side_dish1_id)}>{selectedMeal.side_dish1_name}</span>
+                    <button className="item-refresh-button" onClick={() => handleRegenerateMealItem(selectedDate, 'side_dish1')}>↻</button>
+                  </li>
                 )}
                 {selectedMeal.side_dish2_id && (
-                  <li onClick={() => handleFoodClick(selectedMeal.side_dish2_id)} className="food-item-clickable">{selectedMeal.side_dish2_name}</li>
+                  <li className="meal-item">
+                    <span className="meal-item-name food-item-clickable" onClick={() => handleFoodClick(selectedMeal.side_dish2_id)}>{selectedMeal.side_dish2_name}</span>
+                    <button className="item-refresh-button" onClick={() => handleRegenerateMealItem(selectedDate, 'side_dish2')}>↻</button>
+                  </li>
                 )}
               </ul>
             </div>
@@ -180,7 +264,10 @@ const DietPlanView = ({
             <div className="meal-block">
               <h3 className="meal-title">메인요리</h3>
               <ul className="meal-items">
-                <li onClick={() => handleFoodClick(selectedMeal.main_dish_id)} className="food-item-clickable">{selectedMeal.main_dish_name}</li>
+                <li className="meal-item">
+                  <span className="meal-item-name food-item-clickable" onClick={() => handleFoodClick(selectedMeal.main_dish_id)}>{selectedMeal.main_dish_name}</span>
+                  <button className="item-refresh-button" onClick={() => handleRegenerateMealItem(selectedDate, 'main_dish')}>↻</button>
+                </li>
               </ul>
             </div>
           )}
@@ -188,7 +275,10 @@ const DietPlanView = ({
             <div className="meal-block">
               <h3 className="meal-title">디저트</h3>
               <ul className="meal-items">
-                <li onClick={() => handleFoodClick(selectedMeal.dessert_id)} className="food-item-clickable">{selectedMeal.dessert_name}</li>
+                <li className="meal-item">
+                  <span className="meal-item-name food-item-clickable" onClick={() => handleFoodClick(selectedMeal.dessert_id)}>{selectedMeal.dessert_name}</span>
+                  <button className="item-refresh-button" onClick={() => handleRegenerateMealItem(selectedDate, 'dessert')}>↻</button>
+                </li>
               </ul>
             </div>
           )}

@@ -115,22 +115,37 @@ export const regenerateMeal = async (date) => {
   }
 };
 
-export const getMealNutritionByDate = async (date, token) => {
+// 특정 메뉴만 다시 생성하기
+export const regenerateMealItem = async (date, itemType) => {
   try {
-    const response = await fetch(
-      `${API_URL}/meal-nutrition/${date}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : undefined,
-        },
-      }
+    const authHeader = getAuthHeader();
+    const response = await axios.post(
+      `${API_URL}/meals/regenerate/${date}/${itemType}`,
+      {},
+      authHeader
     );
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || '영양소 정보 조회 실패');
-    return data;
+    return response.data;
   } catch (error) {
+    console.error('개별 메뉴 재생성 오류:', error);
+    if (error.response) {
+      console.error('서버 응답:', error.response.status, error.response.data);
+    }
     throw error;
   }
+};
+
+export const getMealNutritionByDate = async (date, token) => {
+  const response = await fetch(
+    `${API_URL}/meal-nutrition/${date}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+    }
+  );
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || '영양소 정보 조회 실패');
+  return data;
 };
