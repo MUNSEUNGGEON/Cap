@@ -35,10 +35,10 @@ export const generateMonthlyMeals = async (startDate = null) => {
     
     const authHeader = getAuthHeader();
     console.log("식단 생성 요청 헤더:", authHeader);
-    
+
     const response = await axios.post(
-      `${API_URL}/meals/generate`, 
-      data, 
+      `${API_URL}/meals/generate/monthly`,
+      data,
       authHeader
     );
     console.log("식단 생성 응답:", response.data);
