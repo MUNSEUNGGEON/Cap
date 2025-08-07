@@ -1,6 +1,6 @@
 import datetime
+import random
 import traceback
-from itertools import combinations
 
 from services.meal_filter import filter_foods_by_allergy
 from models.meal import Meal
@@ -31,6 +31,18 @@ def generate_daily_meal(user_id, date=None):
         main_dish_list = [f for f in filtered_foods if f['Food_role'] == '일품']
         dessert_list = [f for f in filtered_foods if f['Food_role'] == '후식']
 
+        # ✅ 2️⃣-1️⃣ 각 카테고리별 후보 수 제한 (과도한 조합 탐색 방지)
+        def limit_candidates(lst, max_count=30):
+            if len(lst) > max_count:
+                return random.sample(lst, max_count)
+            return lst
+
+        rice_list = limit_candidates(rice_list)
+        soup_list = limit_candidates(soup_list)
+        side_dishes_list = limit_candidates(side_dishes_list)
+        main_dish_list = limit_candidates(main_dish_list)
+        dessert_list = limit_candidates(dessert_list)
+
         # ✅ 3️⃣ 권장 영양소 기준에 맞는 조합 탐색
         user = User.get_by_id(user_id)
         age = None
@@ -45,8 +57,16 @@ def generate_daily_meal(user_id, date=None):
             }
 
         # 음식별 영양소 정보 캐시
+        candidates_for_nutrition = (
+            rice_list
+            + soup_list
+            + side_dishes_list
+            + main_dish_list
+            + dessert_list
+        )
         nutrition_cache = {
-            f['Food_id']: get_nutrition_by_food_id(f['Food_id']) for f in filtered_foods
+            f['Food_id']: get_nutrition_by_food_id(f['Food_id'])
+            for f in candidates_for_nutrition
         }
 
         def calc_totals(selected):
@@ -83,42 +103,32 @@ def generate_daily_meal(user_id, date=None):
         best_combo = None
         best_score = float('inf')
 
-        rice_candidates = rice_list or [None]
-        soup_candidates = soup_list or [None]
-        main_candidates = main_dish_list or [None]
-        dessert_candidates = dessert_list or [None]
+        # ✅ 무작위 탐색으로 조합 수 감소
+        attempts = 500
+        for _ in range(attempts):
+            rice = random.choice(rice_list) if rice_list else None
+            soup = random.choice(soup_list) if soup_list else None
+            main_dish = random.choice(main_dish_list) if main_dish_list else None
+            dessert = random.choice(dessert_list) if dessert_list else None
 
-        if len(side_dishes_list) >= 2:
-            side_combos = list(combinations(side_dishes_list, 2))
-        elif len(side_dishes_list) == 1:
-            side_combos = [(side_dishes_list[0],)]
-        else:
-            side_combos = [()]
+            if len(side_dishes_list) >= 2:
+                sides = random.sample(side_dishes_list, 2)
+            elif len(side_dishes_list) == 1:
+                sides = [side_dishes_list[0]]
+            else:
+                sides = []
 
-        found = False
-        for rice in rice_candidates:
-            for soup in soup_candidates:
-                for sides in side_combos:
-                    for main_dish in main_candidates:
-                        for dessert in dessert_candidates:
-                            selected = [x for x in [rice, soup, main_dish, dessert] if x] + list(sides)
-                            totals = calc_totals(selected)
-                            if within_range(totals):
-                                best_combo = (rice, soup, list(sides), main_dish, dessert)
-                                found = True
-                                break
-                            score = score_totals(totals)
-                            if score < best_score:
-                                best_score = score
-                                best_combo = (rice, soup, list(sides), main_dish, dessert)
-                        if found:
-                            break
-                    if found:
-                        break
-                if found:
-                    break
-            if found:
+            selected = [x for x in [rice, soup, main_dish, dessert] if x] + list(sides)
+            totals = calc_totals(selected)
+
+            if within_range(totals):
+                best_combo = (rice, soup, sides, main_dish, dessert)
                 break
+
+            score = score_totals(totals)
+            if score < best_score or best_combo is None:
+                best_score = score
+                best_combo = (rice, soup, sides, main_dish, dessert)
 
         rice, soup, side_dishes, main_dish, dessert = best_combo
 
